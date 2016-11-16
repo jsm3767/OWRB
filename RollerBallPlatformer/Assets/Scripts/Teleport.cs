@@ -10,12 +10,14 @@ public class Teleport : MonoBehaviour {
 	private Vector3 spherePos;
 	private Rigidbody sphereRB;
 	private Ball ball;
+	private BallUserControl ballControl;
 
 	// Use this for initialization
 	void Start () {
 		sphereTransform = sphere.GetComponent<Transform> ();
 		spherePos = sphereTransform.position;
 		ball = sphere.GetComponent<Ball> ();
+		ballControl = sphere.GetComponent<BallUserControl> ();
 	}
 	
 	// Update is called once per frame

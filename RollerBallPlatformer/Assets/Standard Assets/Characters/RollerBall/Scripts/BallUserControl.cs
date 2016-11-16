@@ -20,12 +20,19 @@ namespace UnityStandardAssets.Vehicles.Ball
 		private Vector3 spherePos;
 		private Rigidbody sphereRB;
 		private Vector3 checkpoint;
+		private GameObject thisCheckpoint;
+
+		private Collider ballCollider;
+		private String special;
+		public String Special { get { return special; } set { special = value; } }
+		private bool jumpSelected;
 
 		private bool pause;
 		public bool Pause { get { return pause; } set { pause = value; } }
 
         private void Awake()
 		{
+			ballCollider = GetComponent<Collider> ();
 			pause = false;
 			spherePos = transform.position;
 
@@ -33,6 +40,9 @@ namespace UnityStandardAssets.Vehicles.Ball
             // Set up the reference.
             ball = GetComponent<Ball>();
 			jumpAllowed = true;
+
+			special = "jump";
+			jumpSelected = true;
 
             // get the transform of the main camera
             if (Camera.main != null)
@@ -63,11 +73,37 @@ namespace UnityStandardAssets.Vehicles.Ball
 				resetToCheckpoint();
 			}
 
+			switch (special) {
+			case "jump":
+				jumpSelected = true;
+				break;
+			case "phase":
+				jumpSelected = false;
+				if(Input.GetKey(KeyCode.Space)){
+					ballCollider.enabled = false;
+				}else{
+					ballCollider.enabled = true;
+				}
+				break;
+			case "boost":
+				jumpSelected = false;
+				break;
+			case "flip":
+				jumpSelected = false;
+				break;
+			case "spring":
+				jumpSelected = false;
+				break;
+			case "rocket":
+				jumpSelected = false;
+				break;
+			}
+
 			//float v = CrossPlatformInputManager.GetAxis("Vertical");
 			if (jumpAllowed && jumpCooldown > 0) {
 				jumpCooldown -= 1;
 			}
-			if (jumpAllowed && jumpCooldown == 0) {
+			if (jumpAllowed && jumpCooldown == 0 && jumpSelected) {
 				jump = CrossPlatformInputManager.GetButton("Jump");
 			}
 			if (jump) {
@@ -105,8 +141,16 @@ namespace UnityStandardAssets.Vehicles.Ball
             jump = false;
 		}
 
-		public void setCheckpoint(Vector3 newCheckpoint){
+		public void setCheckpoint(Vector3 newCheckpoint, GameObject checkpointObj){
+			if (thisCheckpoint != null) {
+				MeshRenderer[] lastCheckRenderer = thisCheckpoint.GetComponentsInChildren<MeshRenderer> ();
+				for (int i = 0; i < lastCheckRenderer.Length; i++) {
+					lastCheckRenderer[i].material.color = Color.white;
+				}
+			}
+
 			checkpoint = newCheckpoint;
+			thisCheckpoint = checkpointObj;
 		}
 		
 		public void resetToCheckpoint(){
